@@ -9,6 +9,7 @@ use gdnative::{
 };
 use rand::prelude::*;
 use crate::player;
+use crate::ui::UI;
 
 pub type Base = KinematicBody;
 
@@ -74,8 +75,17 @@ impl Mob {
     }
 
     pub fn squash(&self, owner: TRef<Base>) {
+        let spawn_timer: TRef<Timer> = get_node(owner.clone(), "../SpawnInterval").unwrap();
+        let ui = get_instance::<Base, Control, UI>(owner.clone(), "../../UI").unwrap();
+
+        let time = match ui.map(|s,_|s.score).unwrap() {
+            0 => 0.5,
+            a => a as f64
+        };
+
+        spawn_timer.set_wait_time(1. / time);
+
         owner.emit_signal("squashed", &[]);
-        gd_print!(owner, p, "I'm dead!");
         owner.queue_free();
     }
 }
@@ -177,14 +187,20 @@ impl MobSpawn {
                         .cast_instance::<Mob>().unwrap()
                 };
 
+                let ui = get_instance::<Node, Control, UI>(owner.clone(), "../UI").unwrap();
                 let spawn_location: TRef<PathFollow> = get_node(owner.clone(), "SpawnPath/PathFollow").unwrap();
+                let player_pos = get_node::<Node, player::Base>(owner, "../Player").unwrap().transform().origin;
+
+
                 spawn_location.set_unit_offset(self.rng.gen_range(0_f64..1.));
 
-                let player_pos = get_node::<Node, player::Base>(owner, "../Player").unwrap().transform().origin;
 
                 mob.map_mut(|s, o| {
                     s.initialize(o, spawn_location.translation(), player_pos, &mut self.rng);
                 }).unwrap();
+
+                //  Connect the signal emitted when mob dies to score tracker
+                mob.base().connect("squashed", ui.base(), "_on_mob_squashed", VariantArray::new().into_shared(), 0).unwrap();
 
                 owner.add_child(mob, false)
             }

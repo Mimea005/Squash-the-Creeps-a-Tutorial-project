@@ -1,9 +1,11 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://Player.tscn" type="PackedScene" id=1]
-[ext_resource path="res://Main.gdns" type="Script" id=2]
-[ext_resource path="res://MobSpawner.gdns" type="Script" id=3]
+[ext_resource path="res://scripts/Main.gdns" type="Script" id=2]
+[ext_resource path="res://scripts/MobSpawner.gdns" type="Script" id=3]
 [ext_resource path="res://Mob.tscn" type="PackedScene" id=4]
+[ext_resource path="res://fonts/Montserrat-Medium.ttf" type="DynamicFontData" id=5]
+[ext_resource path="res://UI.gdns" type="Script" id=6]
 
 [sub_resource type="BoxShape" id=1]
 extents = Vector3( 30, 1, 30 )
@@ -22,6 +24,13 @@ _data = {
 "tilts": PoolRealArray( 0, 0, 0, 0, 0 )
 }
 
+[sub_resource type="DynamicFont" id=6]
+size = 22
+font_data = ExtResource( 5 )
+
+[sub_resource type="Theme" id=7]
+default_font = SubResource( 6 )
+
 [node name="Main" type="Node"]
 script = ExtResource( 2 )
 
@@ -39,7 +48,7 @@ skeleton = NodePath("../CollisionShape")
 material/0 = null
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 7, 0 )
+transform = Transform( 1, 0, 0, 0, 0.258819, 0.965926, 0, -0.965926, 0.258819, 0, 7, 0 )
 shadow_enabled = true
 
 [node name="Player" parent="." instance=ExtResource( 1 )]
@@ -87,4 +96,35 @@ PackedScene = ExtResource( 4 )
 [node name="SpawnPath" type="Path" parent="MobSpawn"]
 curve = SubResource( 5 )
 
+[node name="UI" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = SubResource( 7 )
+script = ExtResource( 6 )
+
+[node name="ScoreLabel" type="Label" parent="UI"]
+margin_left = 24.0
+margin_top = 20.0
+margin_right = 75.0
+margin_bottom = 34.0
+custom_colors/font_color = Color( 0.0705882, 0.0196078, 0.156863, 1 )
+text = "Score: 0"
+
+[node name="Retry" type="ColorRect" parent="UI"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.2 )
+
+[node name="Label" type="Label" parent="UI/Retry"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -107.0
+margin_top = -14.0
+margin_right = 107.0
+margin_bottom = 14.0
+text = "Press Enter to retry"
+
 [connection signal="hit" from="Player" to="MobSpawn" method="_on_player_hit"]
+[connection signal="hit" from="Player" to="UI" method="_on_player_hit"]

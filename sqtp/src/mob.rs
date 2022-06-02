@@ -47,6 +47,9 @@ impl Mob {
             .with_getter(|s,_|s.max_speed)
             .with_default(18.)
             .done();
+
+        builder.signal("squashed").done();
+
     }
 
     pub fn initialize(&mut self, owner: TRef<Base, Unique>, start_pos: Vector3, player_pos: Vector3, rng: &mut ThreadRng) {
@@ -69,6 +72,12 @@ impl Mob {
 
         self.velocity *= speed;
     }
+
+    pub fn squash(&self, owner: TRef<Base>) {
+        owner.emit_signal("squashed", &[]);
+        gd_print!(owner, p, "I'm dead!");
+        owner.queue_free();
+    }
 }
 
 #[methods]
@@ -83,7 +92,6 @@ impl Mob {
 
     #[export]
     fn _mob_screen_exited(&self, owner: TRef<Base>) {
-        gd_print!(owner, p, "I'm free!");
         owner.queue_free()
     }
 

@@ -1,6 +1,5 @@
 use gdnative::{
     prelude::*,
-    api::PackedScene
 };
 
 #[derive(NativeClass)]

@@ -1,5 +1,4 @@
 use gdnative::prelude::*;
-use gdextras::*;
 
 mod player;
 mod mob;

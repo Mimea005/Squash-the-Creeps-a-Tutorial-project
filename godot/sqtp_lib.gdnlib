@@ -7,7 +7,7 @@ reloadable=true
 
 [entry]
 
-Windows.64="res://bin/release/Squash_the_Creeps.dll"
+Windows.64="res://bin/release/sqtc.dll"
 
 [dependencies]
 

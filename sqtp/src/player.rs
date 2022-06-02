@@ -8,18 +8,32 @@ pub type Base = KinematicBody;
 
 #[derive(NativeClass)]
 #[inherit(Base)]
+#[register_with(Self::register)]
 pub struct Player {
 
-    #[property]
     speed: f32,
 
-    #[property]
     fall_acceleration: f32,
 
     velocity: Vector3
 }
 
 impl Player {
+
+    fn register(builder: &ClassBuilder<Self>) {
+
+        builder.property("Speed")
+            .with_setter(|mut s, o, v: f32| s.speed = v)
+            .with_getter(|s, o| s.speed)
+            .with_default(14.)
+            .done();
+
+        builder.property("Fall Acceleration")
+            .with_setter(|mut s, _, v:f32| s.fall_acceleration = v)
+            .with_getter(|s, _| s.fall_acceleration)
+            .with_default(75.)
+            .done();
+    }
 
     pub fn new(_owner: TRef<Base>) -> Self {
         Player {

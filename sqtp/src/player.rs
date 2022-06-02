@@ -49,7 +49,9 @@ impl Player {
             .with_setter(|mut s, _, v| s.bounce_force = v)
             .with_getter(|s,_|s.bounce_force)
             .with_default(16.)
-            .done()
+            .done();
+
+        builder.signal("hit").done();
     }
 
     pub fn new(_owner: TRef<Base>) -> Self {
@@ -131,6 +133,12 @@ impl Player {
         //  Update player position
         self.velocity = owner.move_and_slide(self.velocity, Vector3::UP, false, 4, 0.7, true);
 
+    }
+
+    #[export]
+    fn _die(&self, owner: TRef<Base>, _body: Ref<Node>) {
+        owner.emit_signal("hit", &[]);
+        owner.queue_free();
     }
 
 }

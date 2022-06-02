@@ -190,4 +190,9 @@ impl MobSpawn {
             }
         }
     }
+
+    #[export]
+    fn _on_player_hit(&self, owner: TRef<Node>) {
+        get_node::<Node, Timer>(owner, "SpawnInterval").unwrap().set_paused(true);
+    }
 }

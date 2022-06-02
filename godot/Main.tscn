@@ -86,3 +86,5 @@ PackedScene = ExtResource( 4 )
 
 [node name="SpawnPath" type="Path" parent="MobSpawn"]
 curve = SubResource( 5 )
+
+[connection signal="hit" from="Player" to="MobSpawn" method="_on_player_hit"]

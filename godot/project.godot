@@ -15,12 +15,14 @@ _global_script_class_icons={
 [application]
 
 config/name="Squash the Creeps (3D)"
-run/main_scene="res://Main.tscn"
+run/main_scene="res://scenes/StartMenu.tscn"
+config/use_custom_user_dir=true
 config/icon="res://icon.png"
 
 [autoload]
 
 MusicPlayer="*res://MusicPlayer.tscn"
+Persistent="*res://Persistent.tscn"
 
 [display]
 

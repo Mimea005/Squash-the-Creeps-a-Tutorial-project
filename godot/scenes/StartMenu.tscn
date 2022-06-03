@@ -1,0 +1,89 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://fonts/Montserrat-Medium.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://entities/Mob.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/Ground.tscn" type="PackedScene" id=3]
+[ext_resource path="res://scripts/MobSpawner.gdns" type="Script" id=4]
+[ext_resource path="res://scripts/StartMenu.gdns" type="Script" id=5]
+[ext_resource path="res://default theme.theme" type="Theme" id=6]
+
+[sub_resource type="DynamicFont" id=5]
+size = 42
+outline_size = 1
+outline_color = Color( 0.196078, 0.0588235, 0.305882, 1 )
+font_data = ExtResource( 1 )
+
+[sub_resource type="Curve3D" id=1]
+_data = {
+"points": PoolVector3Array( 0, 0, 0, 0, 0, 0, -13, 0, -16, 0, 0, 0, 0, 0, 0, 13, 0, -16, 0, 0, 0, 0, 0, 0, 13, 0, 15, 0, 0, 0, 0, 0, 0, -13, 0, 15, 0, 0, 0, 0, 0, 0, -13, 0, -16 ),
+"tilts": PoolRealArray( 0, 0, 0, 0, 0 )
+}
+
+[node name="Start" type="Node"]
+script = ExtResource( 5 )
+
+[node name="UI" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="ColorRect" type="ColorRect" parent="UI"]
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_bottom = 1.0
+grow_horizontal = 2
+color = Color( 0, 0, 0, 0.423529 )
+
+[node name="Label" type="Label" parent="UI"]
+anchor_left = 0.5
+anchor_top = 0.25
+anchor_right = 0.5
+anchor_bottom = 0.25
+margin_left = -20.0
+margin_right = 20.0
+margin_bottom = 14.0
+grow_horizontal = 2
+theme = ExtResource( 6 )
+custom_fonts/font = SubResource( 5 )
+text = "Squash The Creeps"
+
+[node name="Message" type="Label" parent="UI"]
+anchor_left = 0.5
+anchor_top = 0.7
+anchor_right = 0.5
+anchor_bottom = 0.7
+margin_left = -61.0
+margin_top = -7.0
+margin_right = 61.0
+margin_bottom = 7.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource( 6 )
+text = "Press Enter to start"
+align = 1
+
+[node name="NameInput" type="LineEdit" parent="UI"]
+anchor_left = 0.3
+anchor_top = 0.45
+anchor_right = 0.7
+anchor_bottom = 0.5
+margin_left = -29.0
+margin_top = -12.0
+margin_right = 29.0
+margin_bottom = 12.0
+theme = ExtResource( 6 )
+align = 1
+clear_button_enabled = true
+placeholder_text = "Enter a username"
+caret_blink = true
+
+[node name="Background" type="Node" parent="."]
+
+[node name="Ground" parent="Background" instance=ExtResource( 3 )]
+
+[node name="Spawner" type="Node" parent="Background"]
+script = ExtResource( 4 )
+PackedScene = ExtResource( 2 )
+"Spawn Interval Seconds" = 0.7
+
+[node name="SpawnPath" type="Path" parent="Background/Spawner"]
+curve = SubResource( 1 )

@@ -3,7 +3,7 @@ use gdnative::{
     prelude::*,
     api::{KinematicBody}
 };
-use crate::mob::Mob;
+use crate::entity::mob::Mob;
 
 pub type Base = KinematicBody;
 
@@ -68,6 +68,12 @@ impl Player {
 
 #[methods]
 impl Player {
+
+    #[export]
+    fn _ready(&self, owner: TRef<Base>) {
+        let persistent = get_node::<Base, Node>(owner.clone(), "/root/Persistent").unwrap();
+        owner.connect("hit", persistent, "_on_player_hit", VariantArray::new().into_shared(), 0).unwrap();
+    }
 
     #[export]
     fn _physics_process(&mut self, owner: TRef<Base>, delta: f32) {

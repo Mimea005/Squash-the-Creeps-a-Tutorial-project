@@ -8,8 +8,8 @@ use gdnative::{
     }
 };
 use rand::prelude::*;
-use crate::player;
-use crate::ui::UI;
+use crate::entity::player;
+use crate::scene::persistent::Persistent;
 
 pub type Base = KinematicBody;
 
@@ -69,16 +69,16 @@ impl Mob {
 
         let speed = rng.gen_range(self.min_speed..self.max_speed);
 
-        self.velocity = Vector3::new(rotation.x, 0., rotation.y);
+        self.velocity = Vector3::new(rotation.x, -0.1, rotation.y);
 
         self.velocity *= speed;
     }
 
     pub fn squash(&self, owner: TRef<Base>) {
         let spawn_timer: TRef<Timer> = get_node(owner.clone(), "../SpawnInterval").unwrap();
-        let ui = get_instance::<Base, Control, UI>(owner.clone(), "../../UI").unwrap();
+        let persistant = get_instance::<Base, Node, Persistent>(owner.clone(), "/root/Persistent").unwrap();
 
-        let time = match ui.map(|s,_|s.score).unwrap() {
+        let time = match persistant.map(|s, _|s.score).unwrap() {
             0 => 0.5,
             a => a as f64
         };
@@ -112,6 +112,7 @@ impl Mob {
 #[register_with(Self::register)]
 pub struct MobSpawn {
     scene: Option<Ref<PackedScene>>,
+    target: Option<String>,
     s_spawn_interval: f64,
     rng: ThreadRng
 }
@@ -120,6 +121,7 @@ impl MobSpawn {
     pub fn new(_owner: TRef<Node>) -> Self {
         Self {
             scene: None,
+            target: None,
             s_spawn_interval: 1.,
             rng: thread_rng()
         }
@@ -140,6 +142,16 @@ impl MobSpawn {
             .with_setter(|mut s, _, v|s.s_spawn_interval = v)
             .with_getter(|s,_| s.s_spawn_interval)
             .with_default(1.)
+            .done();
+
+        builder.property("Look at target")
+            .with_setter(|mut s,_,v: String|s.target = Some(v))
+            .with_getter(|s,_| {
+                match &s.target {
+                    None => String::new(),
+                    Some(t) => t.clone()
+                }
+            })
             .done();
     }
 }
@@ -187,20 +199,27 @@ impl MobSpawn {
                         .cast_instance::<Mob>().unwrap()
                 };
 
-                let ui = get_instance::<Node, Control, UI>(owner.clone(), "../UI").unwrap();
-                let spawn_location: TRef<PathFollow> = get_node(owner.clone(), "SpawnPath/PathFollow").unwrap();
-                let player_pos = get_node::<Node, player::Base>(owner, "../Player").unwrap().transform().origin;
+                let persistent = get_instance::<Node, Node, Persistent>(owner.clone(), "/root/Persistent").unwrap();
+                let location_gen: TRef<PathFollow> = get_node(owner.clone(), "SpawnPath/PathFollow").unwrap();
 
+                location_gen.set_unit_offset(self.rng.gen_range(0_f64..1.));
 
-                spawn_location.set_unit_offset(self.rng.gen_range(0_f64..1.));
+                let start_pos = location_gen.translation();
 
+                let target_pos = match &self.target {
+                    Some(target) => get_node::<Node, player::Base>(owner, target.as_str()).unwrap().translation(),
+                    None => {
+                        location_gen.set_unit_offset(self.rng.gen_range(0_f64..1.));
+                        location_gen.translation()
+                    }
+                };
 
                 mob.map_mut(|s, o| {
-                    s.initialize(o, spawn_location.translation(), player_pos, &mut self.rng);
+                    s.initialize(o, start_pos, target_pos, &mut self.rng);
                 }).unwrap();
 
                 //  Connect the signal emitted when mob dies to score tracker
-                mob.base().connect("squashed", ui.base(), "_on_mob_squashed", VariantArray::new().into_shared(), 0).unwrap();
+                mob.base().connect("squashed", persistent.base(), "_on_mob_squashed", VariantArray::new().into_shared(), 0).unwrap();
 
                 owner.add_child(mob, false)
             }

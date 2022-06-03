@@ -51,10 +51,7 @@ impl Persistent {
             )
         }).unwrap();
 
-
-        gd_print!(p, "Score: {:?}", score_storage.map(|s,_|s.get_scores().last().unwrap().clone()));
         self.score = 0;
-
     }
 
     #[export]

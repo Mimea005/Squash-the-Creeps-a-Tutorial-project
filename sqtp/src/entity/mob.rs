@@ -4,7 +4,8 @@ use gdnative::{
     api::{
         KinematicBody,
         Path as Path3D,
-        PathFollow
+        PathFollow,
+        AnimationPlayer
     }
 };
 use rand::prelude::*;
@@ -53,7 +54,7 @@ impl Mob {
 
     }
 
-    pub fn initialize(&mut self, owner: TRef<Base, Unique>, start_pos: Vector3, player_pos: Vector3, rng: &mut ThreadRng) {
+    pub fn initialize(&mut self, owner: TRef<Base, Shared>, start_pos: Vector3, player_pos: Vector3, rng: &mut ThreadRng) {
 
         use core::f32::consts::FRAC_PI_4;
 
@@ -72,13 +73,15 @@ impl Mob {
         self.velocity = Vector3::new(rotation.x, -0.1, rotation.y);
 
         self.velocity *= speed;
+
+        get_node::<Base, AnimationPlayer>(owner.clone(), "AnimationPlayer").unwrap().set_speed_scale((speed * 2. / self.min_speed).into());
     }
 
     pub fn squash(&self, owner: TRef<Base>) {
         let spawn_timer: TRef<Timer> = get_node(owner.clone(), "../SpawnInterval").unwrap();
-        let persistant = get_instance::<Base, Node, Persistent>(owner.clone(), "/root/Persistent").unwrap();
+        let persistent = get_instance::<Base, Node, Persistent>(owner.clone(), "/root/Persistent").unwrap();
 
-        let time = match persistant.map(|s, _|s.score).unwrap() {
+        let time = match persistent.map(|s, _|s.score).unwrap() {
             0 => 0.5,
             a => a as f64
         };
@@ -215,6 +218,7 @@ impl MobSpawn {
                 };
 
                 mob.map_mut(|s, o| {
+                    let o = unsafe {o.assume_shared().assume_safe()};
                     s.initialize(o, start_pos, target_pos, &mut self.rng);
                 }).unwrap();
 

@@ -1,7 +1,10 @@
 use gdextras::*;
 use gdnative::{
     prelude::*,
-    api::{KinematicBody}
+    api::{
+        KinematicBody,
+        AnimationPlayer
+    }
 };
 use crate::entity::mob::Mob;
 
@@ -93,6 +96,9 @@ impl Player {
         }
 
         if direction != Vector3::ZERO {
+
+            get_node::<Base, AnimationPlayer>(owner.clone(), "AnimationPlayer").unwrap().set_speed_scale(4.);
+
             direction = direction.normalized();
 
             match get_node::<Base, Spatial>(owner.clone(), "Pivot") {
@@ -101,6 +107,9 @@ impl Player {
                     pivot.look_at(direction + owner.translation(), Vector3::UP)
                 }
             }
+        }
+        else {
+            get_node::<Base, AnimationPlayer>(owner.clone(), "AnimationPlayer").unwrap().set_speed_scale(1.);
         }
 
         //  Ground velocity
@@ -139,6 +148,13 @@ impl Player {
         //  Update player position
         self.velocity = owner.move_and_slide(self.velocity, Vector3::UP, false, 4, 0.7, true);
 
+        use std::f32::consts::FRAC_PI_6;
+        let pivot = get_node::<Base, Spatial>(owner, "Pivot").unwrap();
+        pivot.set_rotation(Vector3::new(
+            FRAC_PI_6 * self.velocity.y / self.jump_force,
+            pivot.rotation().y,
+            pivot.rotation().z
+        ));
     }
 
     #[export]

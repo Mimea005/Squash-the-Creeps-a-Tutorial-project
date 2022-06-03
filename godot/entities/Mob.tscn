@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://art/mob.glb" type="PackedScene" id=1]
 [ext_resource path="res://scripts/Mob.gdns" type="Script" id=2]
@@ -7,6 +7,50 @@
 radius = 1.04673
 height = 1.00585
 
+[sub_resource type="Animation" id=5]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("Pivot/Mesh:translation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector3( -0.033, 0.4, 0 ) ]
+}
+
+[sub_resource type="Animation" id=4]
+resource_name = "float"
+length = 1.2
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("Pivot/Mesh:translation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0.2, 0.7, 1.2 ),
+"transitions": PoolRealArray( 0.341511, 2.07053, 1 ),
+"update": 0,
+"values": [ Vector3( -0.033, 0.4, 0 ), Vector3( -0.033, 0.6, 0 ), Vector3( -0.033, 0.4, 0 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Pivot/Mesh:rotation_degrees")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0.1, 0.5, 1.2 ),
+"transitions": PoolRealArray( 0.341511, 1.86607, 1 ),
+"update": 0,
+"values": [ Vector3( 0, 0, 0 ), Vector3( 8, 0, 0 ), Vector3( -9, 0, 0 ) ]
+}
+
 [node name="Mob" type="KinematicBody" groups=["mob"]]
 collision_layer = 2
 collision_mask = 4
@@ -14,9 +58,9 @@ script = ExtResource( 2 )
 Speed/Max = 14.0
 
 [node name="Pivot" type="Spatial" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.283645, 0 )
 
 [node name="Mesh" parent="Pivot" instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 0.99051, -0.137439, 0, 0.137439, 0.99051, -0.033, 0.4, 0 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.520795, -0.114487 )
@@ -24,5 +68,10 @@ shape = SubResource( 1 )
 
 [node name="VisibilityNotifier" type="VisibilityNotifier" parent="."]
 aabb = AABB( -1.15304, -0.00868499, -1.36218, 2.30609, 1.23124, 3.27611 )
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+autoplay = "float"
+anims/RESET = SubResource( 5 )
+anims/float = SubResource( 4 )
 
 [connection signal="screen_exited" from="VisibilityNotifier" to="." method="_mob_screen_exited"]
